@@ -1,7 +1,8 @@
 import {
   removeNode,
   attachNode,
-  countChildren
+  countChildren,
+  countChildrenGroupBy
 } from '../src/treeTools'
 
 /* eslint-env node, jest */
@@ -141,14 +142,14 @@ describe('childrenCount', function () {
   })
 
   it('should count children', function () {
-    const res = countChildren({ node: tree })
+    const res = countChildren(tree)
 
     expect(res[1]).toEqual(3)
     expect(res[3]).toEqual(0)
   })
 
   it('should count children by type', function () {
-    const res = countChildren({ node: tree, group: 'type' })
+    const res = countChildrenGroupBy({ node: tree, group: 'type' })
 
     expect(res[1]['Plant']).toEqual(2)
     expect(res[2]['Plant']).toEqual(1)

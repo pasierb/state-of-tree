@@ -36,13 +36,30 @@ export function moveNode ({ tree, nodeId, parentId }, cb) {
   return tree
 }
 
-export function countChildren ({ node, group }, cache = {}) {
+export function countChildren (node, cache = {}) {
   if (node.children && node.children.length > 0) {
-    node.children.forEach(childNode => countChildren({ node: childNode, group }, cache))
+    node.children.forEach(childNode => countChildren(childNode, cache))
 
     cache[node.id] = node.children.reduce((sum, childNode) => cache[childNode.id] + sum, node.children.length)
   } else {
     cache[node.id] = 0
+  }
+
+  return cache
+}
+
+export function countChildrenGroupBy ({ node, group }, cache = {}) {
+  if (node.children && node.children.length > 0) {
+    node.children.forEach(childNode => countChildrenGroupBy({ node: childNode, group }, cache))
+
+    cache[node.id] = node.children.reduce((sum, childNode) => {
+      Object.assign(sum, cache[childNode.id])
+      sum[childNode[group]] = (sum[childNode[group]] || 0) + (cache[childNode.id][group] || 0) + 1
+
+      return sum
+    }, {})
+  } else {
+    cache[node.id] = {}
   }
 
   return cache
