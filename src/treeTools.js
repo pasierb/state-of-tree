@@ -14,15 +14,11 @@ export function removeNode (tree, id) {
 
 export function attachNode (tree, node, parentId) {
   if (tree.id === parentId) {
-    if (!tree.children) {
-      tree.children = []
-    }
+    if (!tree.children) tree.children = []
 
     tree.children.push(node)
   } else if (tree.children && tree.children.length > 0) {
-    tree.children.forEach((child) => {
-      attachNode(child, node, parentId)
-    })
+    tree.children.forEach(child => attachNode(child, node, parentId))
   }
 }
 
