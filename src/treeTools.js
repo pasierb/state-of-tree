@@ -25,7 +25,7 @@ export function attachNode (tree, node, parentId) {
 export function moveNode ({ tree, nodeId, parentId }, cb) {
   const node = removeNode(tree, nodeId)
 
-  cb && cb(node)
+  if (node && cb) cb(null, { node, change: {tree, nodeId, parentId} })
 
   attachNode(tree, node, parentId)
 

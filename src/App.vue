@@ -1,25 +1,31 @@
 <template>
-  <div>
-    <tree :tree="workingTree"></tree>
-    <div>
-      <form @submit.prevent="newChange">
-        <input v-model="change.sourceNodeId" />
-        <input v-model="change.targetNodeId" />
-        <button type="submit">Go!</button>
-      </form>
+  <div class="row">
+    <div class="col-4">
+      <div>
+        <form @submit.prevent="newChange">
+          <div class="form-group">
+            <label for="" class="control-label">Node id:</label>
+            <input v-model="change.sourceNodeId" class="form-control" type="number" />
+          </div>
+          <div class="form-group">
+            <label for="" class="control-label">New parent node id: </label>
+            <input v-model="change.targetNodeId" class="form-control" type="number" />
+          </div>
+          <button type="submit">Go!</button>
+        </form>
+      </div>
+      <div>
+        <table class="table">
+          <tbody>
+            <tr v-for="(change, i) in tree.history" :key="i">
+              <td>{{change}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div>
-      <div>Current changeset: {{currentChangesetId}}</div>
-      <table>
-        <tbody>
-          <tr v-for="(change, i) in changes" :key="i">
-            <td>{{change}}</td>
-            <td>
-              <a @click.prevent="rollbackTo(change.id)">rollback</a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="col-8">
+      <tree :tree="tree"></tree>
     </div>
   </div>
 </template>
@@ -30,60 +36,33 @@ import TreeComponent from './components/Tree.vue';
 import Tree from './Tree';
 
 export default {
-  props: ['tree'],
+  props: {
+    'tree': { type: Object, required: true },
+    'changesets': { type: Array, default: () => [] }
+  },
   components: {
     'tree': TreeComponent,
   },
   data() {
     return {
-      changes: [],
-      workingTree: new Tree(this.tree.struct),
       change: {},
-      currentChangesetId: null,
     };
   },
+  mounted () {
+    this.tree.commit(this.changesets, (err, data) => {
+      console.log(data)
+    })
+  },
   methods: {
-    rollbackTo(changeId) {
-      const changes = [...this.changes].reverse()
-      const index = changes.findIndex((change) => change.id === parseInt(changeId));
-      // console.log(index);
-
-      changes.slice(index).forEach(this.rollback);
-    },
-    rollback({ nodeId, parentId, oldParentId }) {
-      this.commit({
-        nodeId,
-        parentId: oldParentId,
-        oldParentId: parentId
-      })
-    },
-    commit(change) {
-      const newTree = new Tree(this.workingTree.struct);
-
-      newTree.commit(change, ({ node }) => {
-        if (!change.oldParentId) {
-          change.oldParentId = node.parentId;
-        }
-      });
-
-      // this.changes.push(change);
-      this.workingTree = newTree;
-      this.currentChangesetId = change.id;
-
-      return change;
-    },
     newChange(e) {
-      const { sourceNodeId, targetNodeId } = this.change;
-      const change = {
+      const { sourceNodeId, targetNodeId } = this.change
+
+      this.tree.commit({
         id: Date.now(),
         nodeId: parseInt(sourceNodeId),
-        parentId: parseInt(targetNodeId),
-      };
-
-      this.commit(change);
-      this.change = {};
-
-      this.changes.push(change);
+        parentId: parseInt(targetNodeId)
+      })
+      this.change = {}
     },
   },
 }

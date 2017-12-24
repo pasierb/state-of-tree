@@ -1,45 +1,54 @@
-import Vue from 'vue/dist/vue.common';
-import App from './App.vue';
-import Tree from './Tree';
+import Vue from 'vue/dist/vue.common'
+import App from './App.vue'
+import Tree from './Tree'
 
 const tree = new Tree({
-  id: 1,
-  subject: 'A',
-  children: [
-    {
-      id: 2,
-      parentId: 1,
-      subject: 'B',
-      children: [
-        {
-          id: 4,
-          parentId: 2,
-          subject: 'D',
-        },
-      ],
-    },
-    {
-      id: 3,
-      parentId: 1,
-      subject: 'C',
-      children: [],
-    },
-  ],
-});
+  struct: {
+    id: 1,
+    subject: 'A',
+    children: [
+      {
+        id: 2,
+        parentId: 1,
+        subject: 'B',
+        children: [
+          {
+            id: 4,
+            parentId: 2,
+            subject: 'D'
+          }
+        ]
+      },
+      {
+        id: 3,
+        parentId: 1,
+        subject: 'C',
+        children: []
+      }
+    ]
+  }
+})
 
+const changesets = [
+  { id: Date.now(), nodeId: 4, parentId: 3, oldParentId: 2 },
+  { id: Date.now(), nodeId: 4, parentId: 1, oldParentId: 3 }
+]
+
+/* eslint-disable no-new */
 new Vue({
   el: '#root',
   components: {
-    App,
+    App
   },
-  data() {
+  data () {
     return {
       tree,
+      changesets
     }
   },
-  render() {
+  render () {
     return (<div>
-      <App tree={this.tree}></App>
-    </div>);
-  },
-});
+      <App tree={this.tree} changesets={changesets}></App>
+    </div>)
+  }
+})
