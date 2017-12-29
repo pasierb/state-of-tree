@@ -2,12 +2,50 @@ import {
   removeNode,
   attachNode,
   countChildren,
-  countChildrenGroupBy
+  countChildrenGroupBy,
+  build
 } from '../src/treeTools'
 
 /* eslint-env node, jest */
+describe('#build', function () {
+  let nodes
 
-describe('removeNode', function () {
+  beforeEach(() => {
+    nodes = [
+      { id: 1 },
+      { id: 11, parentId: 1 },
+      { id: 21, parentId: 11 },
+      { id: 12, parentId: 1 },
+      { id: 31, parentId: 12 },
+      { id: 32, parentId: 12 }
+    ]
+  })
+
+  it('should construct a tree from single nodes', function () {
+    expect(build(nodes)).toMatchObject({
+      id: 1,
+      children: [
+        {
+          id: 11,
+          parentId: 1,
+          children: [
+            { id: 21, parentId: 11 }
+          ]
+        },
+        {
+          id: 12,
+          parentId: 1,
+          children: [
+            { id: 31, parentId: 12 },
+            { id: 32, parentId: 12 }
+          ]
+        }
+      ]
+    })
+  })
+})
+
+describe('#removeNode', function () {
   let tree
 
   beforeEach(function () {
@@ -61,7 +99,7 @@ describe('removeNode', function () {
   })
 })
 
-describe('attachNode', function () {
+describe('#attachNode', function () {
   let tree
   let node = {
     id: 4,
@@ -111,7 +149,7 @@ describe('attachNode', function () {
   })
 })
 
-describe('childrenCount', function () {
+describe('#childrenCount', function () {
   let tree
 
   beforeEach(function () {

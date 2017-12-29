@@ -30,8 +30,9 @@ const tree = new Tree({
 })
 
 const changesets = [
-  { id: Date.now(), nodeId: 4, parentId: 3, oldParentId: 2 },
-  { id: Date.now(), nodeId: 4, parentId: 1, oldParentId: 3 }
+  { id: Math.random(), nodeId: 4, parentId: 2, oldParentId: 3 },
+  { id: Math.random(), nodeId: 4, parentId: 3, oldParentId: 2 },
+  { id: Math.random(), nodeId: 4, parentId: 1, oldParentId: 3 }
 ]
 
 /* eslint-disable no-new */

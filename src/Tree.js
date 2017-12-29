@@ -4,6 +4,7 @@ export default class Tree {
   constructor ({struct, history = []}) {
     this.struct = JSON.parse(JSON.stringify(struct))
     this.history = history
+    this.stash = []
   }
 
   commit (change, cb) {
@@ -17,7 +18,7 @@ export default class Tree {
         nodeId: change.nodeId,
         parentId: change.parentId
       }, (err, data) => {
-        if (data.node.parentId) {
+        if (data.node.parentId && !change.oldParentId) {
           change.oldParentId = data.node.parentId
         }
 
@@ -28,5 +29,17 @@ export default class Tree {
     })
 
     return this
+  }
+
+  rollback (changesetId) {
+    const index = this.history.findIndex(changeset => changeset.id === changesetId)
+
+    this.history.slice(index).reverse().forEach((changeset, i) => {
+      moveNode({ tree: this.struct, nodeId: changeset.nodeId, parentId: changeset.oldParentId }, (err, data) => {
+        if (!err) {
+          this.stash.push(this.history.pop())
+        }
+      })
+    })
   }
 };

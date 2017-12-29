@@ -9,16 +9,10 @@ const treeSource = {
       id: 2,
       subject: 'B',
       children: [
-        {
-          id: 4,
-          subject: 'D'
-        }
+        { id: 4, subject: 'D' }
       ]
     },
-    {
-      id: 3,
-      subject: 'C'
-    }
+    { id: 3, subject: 'C' }
   ]
 }
 
@@ -32,7 +26,6 @@ describe('Tree', function () {
   describe('#commit', function () {
     it('should apply single changeset', function (done) {
       tree.commit({ nodeId: 4, parentId: 1 }, (err, { node }) => {
-        console.log('node: ', node)
         expect(node).toEqual({ id: 4, subject: 'D' })
         done()
       })
@@ -71,6 +64,64 @@ describe('Tree', function () {
   })
 
   describe('#rollbackTo', function () {
-    // it()
+    let changesets = [
+      { id: 0, nodeId: -1, parentId: null, oldParentId: null }, // invalid changeset, never to be invoked
+      { id: 1, nodeId: 4, parentId: 3, oldParentId: 1 },
+      { id: 2, nodeId: 4, parentId: 2, oldParentId: 3 }
+    ]
+
+    beforeEach(function () {
+      tree = new Tree({
+        struct: {
+          id: 1,
+          subject: 'A',
+          children: [
+            {
+              id: 2,
+              subject: 'B',
+              children: [
+                {
+                  id: 4,
+                  subject: 'D'
+                }
+              ]
+            },
+            { id: 3, subject: 'C' }
+          ]
+        },
+        history: [...changesets]
+      })
+    })
+
+    it('should rollback changes to specified changeset id', function () {
+      tree.rollback(1)
+
+      expect(tree.struct).toEqual({
+        id: 1,
+        subject: 'A',
+        children: [
+          { id: 2, subject: 'B', children: [] },
+          { id: 3, subject: 'C', children: [] },
+          { id: 4, subject: 'D' }
+        ]
+      })
+    })
+
+    it('should remove rollbacked changes from history', function () {
+      tree.rollback(1)
+
+      expect(tree.history.length).toBe(1)
+    })
+
+    it('should move rollbacked changes to stash', function () {
+      expect(tree.stash.length).toBe(0)
+
+      tree.rollback(1)
+
+      expect(tree.stash).toEqual([
+        { id: 2, nodeId: 4, parentId: 2, oldParentId: 3 },
+        { id: 1, nodeId: 4, parentId: 3, oldParentId: 1 }
+      ])
+    })
   })
 })

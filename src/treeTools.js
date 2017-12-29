@@ -1,3 +1,28 @@
+export function build (nodes) {
+  const cache = {}
+  const stack = [...nodes]
+  let rootNode
+
+  nodes.forEach(node => { cache[node.id] = node })
+
+  while (stack.length > 0) {
+    const node = stack.shift()
+
+    if (!node.parentId) {
+      rootNode = node
+      continue
+    }
+
+    if (cache[node.parentId]) {
+      cache[node.parentId].children = (cache[node.parentId].children || []).concat([node])
+    } else {
+      stack.push(node)
+    }
+  }
+
+  return cache[rootNode.id]
+}
+
 export function removeNode (tree, id) {
   if (!tree.children || tree.children.length === 0) return null
 

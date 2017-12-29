@@ -15,10 +15,26 @@
         </form>
       </div>
       <div>
+        <h2>history</h2>
         <table class="table">
           <tbody>
             <tr v-for="(change, i) in tree.history" :key="i">
               <td>{{change}}</td>
+              <td>
+                <a @click.prevent="rollback($event, change)">rollback</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>stash</h2>
+        <table class="table">
+          <tbody>
+            <tr v-for="(change, i) in tree.stash" :key="i">
+              <td>{{change}}</td>
+              <td>
+                <a @click.prevent="fastForward($event, change)">fast forward</a>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -49,9 +65,7 @@ export default {
     };
   },
   mounted () {
-    this.tree.commit(this.changesets, (err, data) => {
-      console.log(data)
-    })
+    this.tree.commit(this.changesets)
   },
   methods: {
     newChange(e) {
@@ -64,6 +78,12 @@ export default {
       })
       this.change = {}
     },
+    rollback (event, change) {
+      this.tree.rollback(change.id)
+    },
+    fastForward (event, change) {
+      this.tree.fastForward(change)
+    }
   },
 }
 </script>
