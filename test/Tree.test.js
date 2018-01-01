@@ -124,4 +124,8 @@ describe('Tree', function () {
       ])
     })
   })
+
+  describe('#fastForward', function () {
+    // it('should ')
+  })
 })
